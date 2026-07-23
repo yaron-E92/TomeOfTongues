@@ -21,6 +21,9 @@ learning engine displayed as **Tome of Many Tongues**.
 Language projects are independent authoring projects that emit declarative
 `.totlang` artifacts. Generic production and test projects must not reference a
 `TomeOfTongues.Language.*` project, assembly, namespace, or type.
+Architecture tests enforce that boundary across C# source, project files, and
+shared MSBuild `.props` and `.targets` inputs while leaving declarative
+`.totlang` content outside the executable dependency scan.
 
 The MAUI host and optional SecondBrain adapter are intentionally outside the
 non-GUI project set until their workload and external contracts are introduced.

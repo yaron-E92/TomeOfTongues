@@ -7,6 +7,12 @@ namespace TomeOfTongues.Architecture.Tests;
 [TestFixture]
 public sealed class ProjectDependencyTests
 {
+    private static readonly string ForbiddenLanguagePrefix =
+        "TomeOfTongues." + "Language.";
+
+    private static readonly string[] DependencyInputExtensions =
+        [".cs", ".csproj", ".props", ".targets"];
+
     private static readonly IReadOnlyDictionary<string, string[]> ExpectedProductionDependencies =
         new Dictionary<string, string[]>
         {
@@ -121,14 +127,14 @@ public sealed class ProjectDependencyTests
     public void Generic_projects_do_not_reference_language_specific_code()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var forbiddenPrefix = "TomeOfTongues." + "Language.";
         var violations = Directory
             .EnumerateFiles(repositoryRoot, "*", SearchOption.AllDirectories)
-            .Where(path => path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase)
-                || path.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
             .Where(path => !IsGeneratedOrAutomationPath(repositoryRoot, path))
             .Where(path => !IsLanguageProject(repositoryRoot, path))
-            .Where(path => File.ReadAllText(path).Contains(forbiddenPrefix, StringComparison.Ordinal))
+            .Where(IsDependencyInput)
+            .Where(path => ContainsLanguageSpecificReference(
+                Path.GetExtension(path),
+                File.ReadAllText(path)))
             .Select(path => Path.GetRelativePath(repositoryRoot, path))
             .Order()
             .ToArray();
@@ -137,6 +143,61 @@ public sealed class ProjectDependencyTests
             violations,
             Is.Empty,
             $"Generic projects must not reference language-specific code:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
+    }
+
+    [Test]
+    public void Declarative_language_pack_content_is_not_a_code_dependency_input()
+    {
+        var languageSpecificIdentifier = ForbiddenLanguagePrefix + "Example";
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(
+                ContainsLanguageSpecificReference(".totlang", languageSpecificIdentifier),
+                Is.False);
+            Assert.That(
+                ContainsLanguageSpecificReference(".cs", "using TomeOfTongues.Core;"),
+                Is.False);
+        });
+    }
+
+    [TestCaseSource(nameof(LanguageSpecificReferenceCases))]
+    public void Language_specific_code_references_are_rejected(
+        string extension,
+        string content)
+    {
+        Assert.That(ContainsLanguageSpecificReference(extension, content), Is.True);
+    }
+
+    private static IEnumerable<TestCaseData> LanguageSpecificReferenceCases()
+    {
+        var languageProject = ForbiddenLanguagePrefix + "Example";
+        var differentlyCasedAssembly = languageProject.ToLowerInvariant();
+
+        yield return new TestCaseData(
+                ".csproj",
+                $"<ProjectReference Include=\"../{languageProject}/{languageProject}.csproj\" />")
+            .SetName("Language project reference");
+        yield return new TestCaseData(
+                ".csproj",
+                $"<Reference Include=\"{languageProject}\" />")
+            .SetName("Language assembly reference");
+        yield return new TestCaseData(
+                ".props",
+                $"<PackageReference Include=\"{differentlyCasedAssembly}\" Version=\"1.0.0\" />")
+            .SetName("Language assembly reference in shared build properties");
+        yield return new TestCaseData(
+                ".targets",
+                $"<Reference Include=\"{languageProject}\" />")
+            .SetName("Language assembly reference in shared build targets");
+        yield return new TestCaseData(
+                ".cs",
+                $"using {languageProject};")
+            .SetName("Language namespace reference");
+        yield return new TestCaseData(
+                ".cs",
+                $"{languageProject}.Lesson lesson = null!;")
+            .SetName("Language type reference");
     }
 
     private static IReadOnlyDictionary<string, ProjectInfo> LoadProductionProjects(string repositoryRoot) =>
@@ -172,7 +233,16 @@ public sealed class ProjectDependencyTests
     private static bool IsLanguageProject(string repositoryRoot, string path) =>
         Path.GetRelativePath(repositoryRoot, path)
             .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            .Any(segment => segment.StartsWith("TomeOfTongues." + "Language.", StringComparison.OrdinalIgnoreCase));
+            .Any(segment => segment.StartsWith(ForbiddenLanguagePrefix, StringComparison.OrdinalIgnoreCase));
+
+    private static bool IsDependencyInput(string path) =>
+        DependencyInputExtensions.Contains(
+            Path.GetExtension(path),
+            StringComparer.OrdinalIgnoreCase);
+
+    private static bool ContainsLanguageSpecificReference(string extension, string content) =>
+        DependencyInputExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase)
+        && content.Contains(ForbiddenLanguagePrefix, StringComparison.OrdinalIgnoreCase);
 
     private static bool IsGeneratedOrAutomationPath(string repositoryRoot, string path)
     {

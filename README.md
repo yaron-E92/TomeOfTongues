@@ -27,7 +27,8 @@ non-GUI project set until their workload and external contracts are introduced.
 
 ## Verification
 
-Install the .NET 10 SDK, then run:
+Install the .NET 10 SDK. The repository selects the 10.0.200 feature band and
+accepts its latest servicing patch. Then run:
 
 ```powershell
 dotnet restore TomeOfTongues.NonMaui.slnf

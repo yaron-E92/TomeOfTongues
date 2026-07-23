@@ -34,6 +34,33 @@ public sealed class ProjectDependencyTests
     ];
 
     [Test]
+    public void Repository_uses_the_shared_net10_sdk_and_build_settings()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+
+        using var sdkDocument = JsonDocument.Parse(
+            File.ReadAllText(Path.Combine(repositoryRoot, "global.json")));
+        var sdk = sdkDocument.RootElement.GetProperty("sdk");
+
+        var buildProperties = XDocument
+            .Load(Path.Combine(repositoryRoot, "Directory.Build.props"))
+            .Descendants()
+            .Where(element => element.Parent?.Name.LocalName == "PropertyGroup")
+            .ToDictionary(element => element.Name.LocalName, element => element.Value);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(sdk.GetProperty("version").GetString(), Is.EqualTo("10.0.200"));
+            Assert.That(sdk.GetProperty("rollForward").GetString(), Is.EqualTo("latestPatch"));
+            Assert.That(sdk.GetProperty("allowPrerelease").GetBoolean(), Is.False);
+            Assert.That(buildProperties["TargetFramework"], Is.EqualTo("net10.0"));
+            Assert.That(buildProperties["ImplicitUsings"], Is.EqualTo("enable"));
+            Assert.That(buildProperties["Nullable"], Is.EqualTo("enable"));
+            Assert.That(buildProperties["TreatWarningsAsErrors"], Is.EqualTo("true"));
+        });
+    }
+
+    [Test]
     public void NonMaui_solution_contains_the_complete_generic_project_set()
     {
         var repositoryRoot = FindRepositoryRoot();

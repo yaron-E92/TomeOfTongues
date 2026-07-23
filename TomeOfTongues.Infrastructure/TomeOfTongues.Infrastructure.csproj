@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../TomeOfTongues.Application/TomeOfTongues.Application.csproj" />
+    <ProjectReference Include="../TomeOfTongues.Content/TomeOfTongues.Content.csproj" />
+    <ProjectReference Include="../TomeOfTongues.Core/TomeOfTongues.Core.csproj" />
+  </ItemGroup>
+</Project>

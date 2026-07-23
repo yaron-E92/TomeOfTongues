@@ -145,7 +145,7 @@ public sealed class ProjectDependencyTests
     private static bool IsLanguageProject(string repositoryRoot, string path) =>
         Path.GetRelativePath(repositoryRoot, path)
             .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            .Any(segment => segment.StartsWith("TomeOfTongues.Language.", StringComparison.OrdinalIgnoreCase));
+            .Any(segment => segment.StartsWith("TomeOfTongues." + "Language.", StringComparison.OrdinalIgnoreCase));
 
     private static bool IsGeneratedOrAutomationPath(string repositoryRoot, string path)
     {

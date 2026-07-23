@@ -1,0 +1,6 @@
+C:\Users\yaref92\source\repos\TomeOfTongues\tests\TomeOfTongues.Architecture.Tests\obj\Debug\net10.0\TomeOfTongues.Architecture.Tests.csproj.AssemblyReference.cache
+C:\Users\yaref92\source\repos\TomeOfTongues\tests\TomeOfTongues.Architecture.Tests\obj\Debug\net10.0\TomeOfTongues.Architecture.Tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\yaref92\source\repos\TomeOfTongues\tests\TomeOfTongues.Architecture.Tests\obj\Debug\net10.0\TomeOfTongues.Architecture.Tests.AssemblyInfoInputs.cache
+C:\Users\yaref92\source\repos\TomeOfTongues\tests\TomeOfTongues.Architecture.Tests\obj\Debug\net10.0\TomeOfTongues.Architecture.Tests.AssemblyInfo.cs
+C:\Users\yaref92\source\repos\TomeOfTongues\tests\TomeOfTongues.Architecture.Tests\obj\Debug\net10.0\TomeOfTongues.Architecture.Tests.csproj.CoreCompileInputs.cache
+C:\Users\yaref92\source\repos\TomeOfTongues\tests\TomeOfTongues.Architecture.Tests\obj\Debug\net10.0\TomeOfTongues.Architecture.Tests.sourcelink.json

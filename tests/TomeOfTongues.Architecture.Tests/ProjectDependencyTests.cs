@@ -43,6 +43,7 @@ public sealed class ProjectDependencyTests
             .Where(element => element.Name.LocalName == "Project")
             .Select(element => element.Attribute("Path")?.Value)
             .Where(path => !string.IsNullOrWhiteSpace(path))
+            .Select(path => path!)
             .Select(NormalizeRelativePath)
             .Order()
             .ToArray();

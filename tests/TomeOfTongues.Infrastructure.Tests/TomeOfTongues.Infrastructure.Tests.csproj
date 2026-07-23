@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../../TomeOfTongues.Infrastructure/TomeOfTongues.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

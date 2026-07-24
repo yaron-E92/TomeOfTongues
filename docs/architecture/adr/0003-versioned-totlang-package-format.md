@@ -43,10 +43,27 @@ Every spoken response and optional speaking opportunity must use
 `deferredAllowed`, so speaking may be skipped or completed later without
 blocking lesson progress.
 
-This decision defines the document representation and intrinsic schema
-invariants only. Package compilation and broad semantic validation, rights and
-checksum enforcement, installation, and engine compatibility-window policy
-remain separate language-pack platform outcomes.
+`TomeOfTongues.Content.Tool.TotlangPackageTool` compiles and validates the
+generic package boundary. An authoring directory contains `manifest.json`,
+`courses.json`, `lessons/<lesson-id>.json`, and manifest-declared files below
+`assets/`. The destination `.totlang` file must be outside that source
+directory.
+
+Compilation validates the complete source before replacing its destination,
+then writes entries in stable ordinal order with stable ZIP timestamps.
+Validation reopens the artifact and enforces:
+
+- portable, unique paths and a declarative-only package with no executable
+  entries;
+- intrinsic JSON schema rules, including non-gating spoken work;
+- manifest, catalog, unit, lesson, objective, expression, representation,
+  source, license, and asset references;
+- explicit redistribution permission for every source; and
+- SHA-256 integrity for every declared asset.
+
+The manifest itself carries the source ledger and license notices. Package
+installation and engine compatibility-window policy remain separate
+language-pack platform outcomes.
 
 ## Consequences
 
@@ -63,6 +80,7 @@ work fail at the schema boundary.
 
 ```powershell
 dotnet test tests/TomeOfTongues.Content.Tests/TomeOfTongues.Content.Tests.csproj
+dotnet test tests/TomeOfTongues.Content.Tool.Tests/TomeOfTongues.Content.Tool.Tests.csproj
 dotnet test tests/TomeOfTongues.Architecture.Tests/TomeOfTongues.Architecture.Tests.csproj
 ```
 

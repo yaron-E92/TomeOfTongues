@@ -55,8 +55,8 @@ public sealed class TotlangPackageToolTests
                     "manifest.json"
                 ]));
             Assert.That(
-                archive.Entries.Select(entry => entry.LastWriteTime).Distinct().Single(),
-                Is.EqualTo(new DateTimeOffset(1980, 1, 1, 0, 0, 0, TimeSpan.Zero)));
+                archive.Entries.Select(entry => entry.LastWriteTime.DateTime).Distinct().Single(),
+                Is.EqualTo(new DateTime(1980, 1, 1, 0, 0, 0)));
             Assert.That(entries, Has.None.EndsWith(".dll"));
         });
     }

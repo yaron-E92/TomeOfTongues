@@ -62,6 +62,7 @@ public static class TotlangSchema
             using var document = JsonDocument.Parse(json);
             if (document.RootElement.ValueKind is not JsonValueKind.Object
                 || !document.RootElement.TryGetProperty("schemaVersion", out var versionElement)
+                || versionElement.ValueKind is not JsonValueKind.Number
                 || !versionElement.TryGetInt32(out var version))
             {
                 throw new TotlangSchemaException(

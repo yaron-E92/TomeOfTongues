@@ -22,7 +22,7 @@ public sealed class TotlangSchemaTests
             Assert.That(restored.Representations[0].Direction, Is.EqualTo(TextDirection.RightToLeft));
             Assert.That(restored.NormalizationOperations, Does.Contain(NormalizationOperation.UnicodeNfc));
             Assert.That(firstJson, Does.Contain("\"rightToLeft\""));
-            Assert.That(firstJson, Does.Not.Contain("TomeOfTongues.Language."));
+            Assert.That(firstJson, Does.Not.Contain("TomeOfTongues." + "Language."));
         });
     }
 

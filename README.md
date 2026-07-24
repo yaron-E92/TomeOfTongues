@@ -15,6 +15,8 @@ learning engine displayed as **Tome of Many Tongues**.
   depends only on Content.
 - `TomeOfTongues.Infrastructure` owns persistence and external adapters and
   depends on Core, Application, and Content.
+- `TomeOfTongues.Maui` is the Android-first MAUI host boundary and depends only
+  on Application and Infrastructure.
 - `tests/` mirrors the generic production projects and includes executable
   dependency-boundary tests.
 
@@ -25,8 +27,8 @@ Architecture tests enforce that boundary across C# source, project files, and
 shared MSBuild `.props` and `.targets` inputs while leaving declarative
 `.totlang` content outside the executable dependency scan.
 
-The MAUI host and optional SecondBrain adapter are intentionally outside the
-non-GUI project set until their workload and external contracts are introduced.
+The MAUI host remains outside `TomeOfTongues.NonMaui.slnf`, allowing generic
+projects and tests to build without installing a MAUI workload.
 
 ## Verification
 
@@ -37,4 +39,12 @@ accepts its latest servicing patch. Then run:
 dotnet restore TomeOfTongues.NonMaui.slnf
 dotnet build TomeOfTongues.NonMaui.slnf --configuration Debug --no-restore
 dotnet test TomeOfTongues.NonMaui.slnf --configuration Debug --no-build --no-restore
+```
+
+For the Android MAUI boundary, install or restore the Android workload and run
+the direct project build:
+
+```powershell
+dotnet workload restore TomeOfTongues.Maui/TomeOfTongues.Maui.csproj
+dotnet build TomeOfTongues.Maui/TomeOfTongues.Maui.csproj --configuration Debug --framework net10.0-android
 ```

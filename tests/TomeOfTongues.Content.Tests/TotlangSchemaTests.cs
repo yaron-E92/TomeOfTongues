@@ -43,6 +43,7 @@ public sealed class TotlangSchemaTests
             Assert.That(representation.Annotations.Single().Length, Is.EqualTo(2));
             Assert.That(speakingStep.Progression, Is.EqualTo(StepProgression.DeferredAllowed));
             Assert.That(speakingStep.Exercise!.ResponseModality, Is.EqualTo(ResponseModality.Spoken));
+            Assert.That(speakingStep.Exercise.Scoring.Mode, Is.EqualTo(ScoringMode.SelfReported));
         });
     }
 
@@ -294,6 +295,11 @@ public sealed class TotlangSchemaTests
                                 RepresentationIds = ["latn"]
                             }
                         ],
+                        Scoring = new ScoringDefinition
+                        {
+                            Mode = ScoringMode.SelfReported,
+                            MaximumScore = 1
+                        },
                         Evidence =
                         [
                             new EvidenceMapping

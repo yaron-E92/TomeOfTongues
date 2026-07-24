@@ -311,7 +311,14 @@ public sealed record ExerciseDefinition
     public required IReadOnlyList<string> TargetIds { get; init; }
     public required IReadOnlyList<AcceptableAnswer> AcceptableAnswers { get; init; }
     public required IReadOnlyList<AssistanceDefinition> Assistance { get; init; }
+    public required ScoringDefinition Scoring { get; init; }
     public required IReadOnlyList<EvidenceMapping> Evidence { get; init; }
+}
+
+public sealed record ScoringDefinition
+{
+    public required ScoringMode Mode { get; init; }
+    public required double MaximumScore { get; init; }
 }
 
 public sealed record AcceptableAnswer
@@ -413,6 +420,13 @@ public enum AssistanceMode
     Adaptive,
     TapToReveal,
     NeverShow
+}
+
+public enum ScoringMode
+{
+    Binary,
+    PartialCredit,
+    SelfReported
 }
 
 public enum SkillDimension

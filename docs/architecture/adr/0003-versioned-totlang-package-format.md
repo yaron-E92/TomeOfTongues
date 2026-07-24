@@ -34,8 +34,8 @@ The v1 document set contains:
 - expression representations identified by language-neutral IDs, BCP 47 script
   tags, direction, authored text, range annotations, natural/literal meanings,
   audio references, and source references;
-- generic exercise modalities, acceptable answers, assistance groups, and
-  evidence mappings.
+- generic exercise modalities, acceptable answers, assistance groups, scoring
+  rules, and evidence mappings.
 
 The contract deliberately has no score-based progression gate. Script
 recognition can emit evidence but cannot require a correct result to advance.

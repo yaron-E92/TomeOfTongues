@@ -409,7 +409,7 @@ public static class TotlangPackageTool
                         audio.AssetId,
                         assetIds,
                         $"Expression '{expression.Id}' audio asset");
-                    ValidateReference(
+                    ValidateOptionalReference(
                         audio.TranscriptRepresentationId,
                         textRepresentationIds,
                         $"Expression '{expression.Id}' audio transcript");

@@ -21,10 +21,12 @@ public sealed class ProjectDependencyTests
             ["TomeOfTongues.Content"] = ["TomeOfTongues.Core"],
             ["TomeOfTongues.Content.Tool"] = ["TomeOfTongues.Content"],
             ["TomeOfTongues.Infrastructure"] =
-                ["TomeOfTongues.Application", "TomeOfTongues.Content", "TomeOfTongues.Core"]
+                ["TomeOfTongues.Application", "TomeOfTongues.Content", "TomeOfTongues.Core"],
+            ["TomeOfTongues.Maui"] =
+                ["TomeOfTongues.Application", "TomeOfTongues.Infrastructure"]
         };
 
-    private static readonly string[] ExpectedSolutionProjects =
+    private static readonly string[] ExpectedNonMauiProjects =
     [
         "TomeOfTongues.Application/TomeOfTongues.Application.csproj",
         "TomeOfTongues.Content.Tool/TomeOfTongues.Content.Tool.csproj",
@@ -37,6 +39,12 @@ public sealed class ProjectDependencyTests
         "tests/TomeOfTongues.Content.Tool.Tests/TomeOfTongues.Content.Tool.Tests.csproj",
         "tests/TomeOfTongues.Core.Tests/TomeOfTongues.Core.Tests.csproj",
         "tests/TomeOfTongues.Infrastructure.Tests/TomeOfTongues.Infrastructure.Tests.csproj"
+    ];
+
+    private static readonly string[] ExpectedSolutionProjects =
+    [
+        .. ExpectedNonMauiProjects,
+        "TomeOfTongues.Maui/TomeOfTongues.Maui.csproj"
     ];
 
     [Test]
@@ -94,7 +102,39 @@ public sealed class ProjectDependencyTests
         Assert.Multiple(() =>
         {
             Assert.That(solutionProjects, Is.EqualTo(ExpectedSolutionProjects.Order()));
-            Assert.That(filterProjects, Is.EqualTo(ExpectedSolutionProjects.Order()));
+            Assert.That(filterProjects, Is.EqualTo(ExpectedNonMauiProjects.Order()));
+        });
+    }
+
+    [Test]
+    public void Ci_separates_non_maui_tests_from_the_android_maui_build()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var workflow = File.ReadAllText(
+            Path.Combine(repositoryRoot, ".github", "workflows", "ci.yml"));
+        var nonMauiJob = ExtractWorkflowJob(workflow, "non-maui");
+        var androidMauiJob = ExtractWorkflowJob(workflow, "android-maui");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(
+                nonMauiJob,
+                Does.Contain(
+                    "dotnet test TomeOfTongues.NonMaui.slnf --configuration Debug"));
+            Assert.That(nonMauiJob, Does.Not.Contain("dotnet workload"));
+            Assert.That(nonMauiJob, Does.Not.Contain("TomeOfTongues.Maui.csproj"));
+
+            Assert.That(
+                androidMauiJob,
+                Does.Contain(
+                    "dotnet workload restore TomeOfTongues.Maui/TomeOfTongues.Maui.csproj"));
+            Assert.That(
+                androidMauiJob,
+                Does.Contain(
+                    "dotnet build TomeOfTongues.Maui/TomeOfTongues.Maui.csproj --configuration Debug --framework net10.0-android"));
+            Assert.That(
+                androidMauiJob,
+                Does.Not.Contain("TomeOfTongues.NonMaui.slnf"));
         });
     }
 
@@ -279,6 +319,44 @@ public sealed class ProjectDependencyTests
 
     private static string NormalizeRelativePath(string path) =>
         path.Replace('\\', '/');
+
+    private static string ExtractWorkflowJob(string workflow, string jobName)
+    {
+        var normalizedWorkflow = workflow.Replace("\r\n", "\n");
+        var jobHeader = $"  {jobName}:\n";
+        var jobStart = normalizedWorkflow.IndexOf(
+            jobHeader,
+            StringComparison.Ordinal);
+
+        Assert.That(jobStart, Is.GreaterThanOrEqualTo(0), $"Missing CI job '{jobName}'.");
+
+        jobStart += jobHeader.Length;
+        var nextJobStart = normalizedWorkflow.IndexOf(
+            "\n  ",
+            jobStart,
+            StringComparison.Ordinal);
+
+        while (nextJobStart >= 0)
+        {
+            var lineEnd = normalizedWorkflow.IndexOf('\n', nextJobStart + 1);
+            var line = normalizedWorkflow.Substring(
+                nextJobStart + 1,
+                (lineEnd < 0 ? normalizedWorkflow.Length : lineEnd) - nextJobStart - 1);
+
+            if (line.EndsWith(':') && !line.StartsWith("    "))
+            {
+                break;
+            }
+
+            nextJobStart = normalizedWorkflow.IndexOf(
+                "\n  ",
+                nextJobStart + 1,
+                StringComparison.Ordinal);
+        }
+
+        return normalizedWorkflow[
+            jobStart..(nextJobStart < 0 ? normalizedWorkflow.Length : nextJobStart)];
+    }
 
     private static StringComparer PathComparer =>
         OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
